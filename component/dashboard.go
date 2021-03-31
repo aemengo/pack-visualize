@@ -11,11 +11,15 @@ type DashBoard struct {
 
 func NewDashboard(app *tview.Application) *DashBoard {
 	var (
+		//TODO: flash the updates
 		updates = NewUpdates()
-		screen    = tview.NewGrid().
+		textView   = updates.View()
+		screen  = tview.NewGrid().
 			SetRows(4, 0).
-			AddItem(updates.View(), 0, 0, 1, 2, 0, 0, false)
+			AddItem(textView, 0, 0, 1, 2, 0, 0, false)
 	)
+
+	textView.SetChangedFunc(func() { app.Draw() })
 
 	return &DashBoard{
 		app:    app,
