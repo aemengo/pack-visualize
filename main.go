@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/aemengo/pack-visualize/component"
-	_ "github.com/fatih/color"
 	"github.com/rivo/tview"
 	"os"
+	"time"
 )
 
 type Screen interface {
@@ -13,11 +13,17 @@ type Screen interface {
 }
 
 func main() {
-	app := tview.NewApplication()
-	loading := component.NewLoading(app)
+	var (
+		app       = tview.NewApplication()
+		loading   = component.NewLoading(app)
+		dashBoard = component.NewDashboard(app)
+	)
 
 	go func() {
 		<-loading.Run()
+
+		time.Sleep(time.Second)
+		<-dashBoard.Run()
 
 		app.Stop()
 	}()
