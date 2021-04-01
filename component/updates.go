@@ -2,9 +2,8 @@ package component
 
 import "github.com/rivo/tview"
 
-var copy = `A stack update is available for: . Please rebase.
-The following CVEs have been detected: .
-`
+var updatesText = `A stack update is available for: . Please rebase.
+The following CVEs have been detected: .`
 
 type Updates struct{}
 
@@ -15,7 +14,7 @@ func NewUpdates() *Updates {
 func (u *Updates) View() *tview.TextView {
 	tv := tview.NewTextView()
 	tv.SetTextAlign(tview.AlignCenter).
-		SetText(copy).
+		SetText(updatesText).
 		SetBorder(true).
 		SetTitle(tview.TranslateANSI(bold.Sprint("| updates |"))).
 		SetTitleAlign(tview.AlignLeft)
