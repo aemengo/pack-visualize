@@ -2,7 +2,7 @@ package component
 
 import "github.com/rivo/tview"
 
-var updatesText = `A stack update is available for: . Please rebase.
+var updatesText = `An update is available for *paketo-buildpacks/run:full-cnb*. Please rebase.
 The following CVEs have been detected: .`
 
 type Updates struct{}
@@ -17,6 +17,7 @@ func (u *Updates) View() *tview.TextView {
 		SetText(updatesText).
 		SetBorder(true).
 		SetTitle(tview.TranslateANSI(bold.Sprint("| updates |"))).
-		SetTitleAlign(tview.AlignLeft)
+		SetTitleAlign(tview.AlignLeft).
+		SetBackgroundColor(backgroundColor)
 	return tv
 }

@@ -14,6 +14,7 @@ func (l *Logs) View() *tview.TextView {
 		SetText(" ... ").
 		SetBorder(true).
 		SetTitle(tview.TranslateANSI(bold.Sprint("| logs |"))).
-		SetTitleAlign(tview.AlignLeft)
+		SetTitleAlign(tview.AlignLeft).
+		SetBackgroundColor(backgroundColor)
 	return tv
 }

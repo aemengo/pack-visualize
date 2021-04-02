@@ -17,6 +17,7 @@ func NewKeyBindings() *KeyBindings {
 func (u *KeyBindings) View() *tview.TextView {
 	tv := tview.NewTextView()
 	tv.SetTextAlign(tview.AlignLeft).
-		SetText(keyBindingsText)
+		SetText(keyBindingsText).
+		SetBackgroundColor(backgroundColor)
 	return tv
 }
