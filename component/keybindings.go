@@ -6,7 +6,7 @@ import (
 )
 
 var keyBindingsText = fmt.Sprintf(`%s edit | %s update | %s rebase | %s build`,
-	boldMagenta.Sprint(`(e)`), boldMagenta.Sprint(`(u)`), boldMagenta.Sprint(`(r)`), boldMagenta.Sprint(`(b)`))
+	boldYellow.Sprint(`(e)`), boldYellow.Sprint(`(u)`), boldYellow.Sprint(`(r)`), boldYellow.Sprint(`(b)`))
 
 type KeyBindings struct {}
 
@@ -16,8 +16,9 @@ func NewKeyBindings() *KeyBindings {
 
 func (u *KeyBindings) View() *tview.TextView {
 	tv := tview.NewTextView()
-	tv.SetTextAlign(tview.AlignLeft).
-		SetText(keyBindingsText).
+	tv.SetDynamicColors(true).
+		SetTextAlign(tview.AlignLeft).
+		SetText(tview.TranslateANSI(keyBindingsText)).
 		SetBackgroundColor(backgroundColor)
 	return tv
 }

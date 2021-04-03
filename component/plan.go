@@ -39,12 +39,12 @@ func (p *Plan) View() *tview.List {
 		}
 
 		title := info.Name+"@"+info.Version
-		//if info.HasUpdate {
-		//	title = title + " (update available)"
-		//}
+		if info.HasUpdate {
+			title = title + boldGreen.Sprint(" (update available)")
+		}
 
 		builderList.AddItem(
-			title,
+			tview.TranslateANSI(title),
 			info.Description,
 			roone,
 			func() {},

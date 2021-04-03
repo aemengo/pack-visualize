@@ -1,7 +1,6 @@
 package component
 
 import (
-	"fmt"
 	"github.com/rivo/tview"
 	"time"
 )
@@ -18,6 +17,7 @@ func NewLoading(app *tview.Application) *Loading {
 		screen   = centered(textView)
 	)
 
+	textView.SetBackgroundColor(backgroundColor)
 	textView.SetChangedFunc(func() { app.Draw() })
 
 	return &Loading{
@@ -44,26 +44,24 @@ func (l *Loading) run(ticker *time.Ticker, timeout <-chan time.Time, doneChan ch
 		i        = 0
 		doneText = "⌛️ Detected!"
 		texts    = []string{
-			"⌛️ Detecting",
-			"⌛️ Detecting.",
-			"⌛️ Detecting..",
-			"⌛️ Detecting...",
+			"⏳️ Detecting",
+			"⏳️ Detecting.",
+			"⏳️ Detecting..",
+			"⏳️ Detecting...",
 		}
 	)
 
 	for {
 		select {
 		case <-ticker.C:
-			l.textView.Clear()
-			fmt.Fprintln(l.textView, texts[i])
+			l.textView.SetText(texts[i])
 
 			i = i + 1
 			if i == len(texts) {
 				i = 0
 			}
 		case <-timeout:
-			l.textView.Clear()
-			fmt.Fprintln(l.textView, doneText)
+			l.textView.SetText(doneText)
 
 			doneChan <- true
 			return
@@ -75,5 +73,13 @@ func centered(p tview.Primitive) tview.Primitive {
 	return tview.NewGrid().
 		SetColumns(0, 20, 0).
 		SetRows(0, 1, 0).
-		AddItem(p, 1, 1, 1, 1, 0, 0, true)
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 0, 0, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 0, 1, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 0, 2, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 1, 0, 1, 1, 0, 0, true).
+		AddItem(p, 1, 1, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 1, 2, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 0, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 1, 1, 1, 0, 0, true).
+		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 2, 1, 1, 0, 0, true)
 }

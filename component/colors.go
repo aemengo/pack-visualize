@@ -10,5 +10,7 @@ var (
 	boldWhite       = color.New(color.Bold, color.FgHiWhite)
 	boldGreen       = color.New(color.Bold, color.FgGreen)
 	boldMagenta     = color.New(color.Bold, color.FgMagenta)
+	boldYellow      = color.New(color.Bold, color.FgYellow)
+	boldRed         = color.New(color.Bold, color.FgRed)
 	backgroundColor = tcell.NewRGBColor(5, 30, 40)
 )

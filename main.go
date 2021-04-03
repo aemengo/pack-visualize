@@ -28,6 +28,7 @@ func main() {
 		app.Stop()
 	}()
 
+	time.Sleep(time.Second)
 	err := app.Run()
 	expectNoError(err)
 }

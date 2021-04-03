@@ -5,14 +5,15 @@ import (
 )
 
 type DashBoard struct {
-	app    *tview.Application
-	screen tview.Primitive
+	app     *tview.Application
+	screen  tview.Primitive
+	updates *Updates
 }
 
 func NewDashboard(app *tview.Application) *DashBoard {
 	var (
-		// TODO: flash the updates
-		updatesTextView     = NewUpdates().View()
+		updates             = NewUpdates()
+		updatesTextView     = updates.View()
 		keybindingsTextView = NewKeyBindings().View()
 		logsTextView        = NewLogs().View()
 		builderView         = NewBuilder().View()
@@ -39,8 +40,9 @@ func NewDashboard(app *tview.Application) *DashBoard {
 	logsTextView.SetChangedFunc(func() { app.Draw() })
 
 	return &DashBoard{
-		app:    app,
-		screen: screen,
+		app:     app,
+		screen:  screen,
+		updates: updates,
 	}
 }
 
@@ -50,5 +52,6 @@ func (l *DashBoard) Run() <-chan bool {
 	)
 
 	l.app.SetRoot(l.screen, true).SetFocus(l.screen)
+	go l.updates.Strobe()
 	return doneChan
 }
