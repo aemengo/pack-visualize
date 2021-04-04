@@ -31,10 +31,7 @@ func NewUpdates() *Updates {
 		SetTitle(tview.TranslateANSI(bold.Sprint("| updates |"))).
 		SetTitleAlign(tview.AlignLeft).
 		SetBackgroundColor(backgroundColor)
-
-	return &Updates{
-		tv: tv,
-	}
+	return &Updates{tv: tv}
 }
 
 func (u *Updates) View() *tview.TextView {
