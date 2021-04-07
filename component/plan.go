@@ -7,8 +7,8 @@ import (
 )
 
 type Plan struct {
-	list    *tview.List
-	changed func()
+	list               *tview.List
+	changed            func()
 }
 
 type Info struct {
@@ -56,6 +56,12 @@ func (p *Plan) View() *tview.List {
 
 func (p *Plan) SetChangedFunc(handler func()) {
 	p.changed = handler
+}
+
+func (p *Plan) SetItemSelectedFunc(handler func()) {
+	p.list.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
+		handler()
+	})
 }
 
 func (p *Plan) Strobe() {

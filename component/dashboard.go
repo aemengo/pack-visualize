@@ -2,7 +2,6 @@ package component
 
 import (
 	"github.com/rivo/tview"
-	"time"
 )
 
 type DashBoard struct {
@@ -43,18 +42,25 @@ func NewDashboard(app *tview.Application) *DashBoard {
 			AddItem(logsTextView, 0, 1, false).
 			AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 1, 0, false), 0, 1, false)
 
-	updatesTextView.SetChangedFunc(func() { app.Draw() })
-	keybindingsTextView.SetChangedFunc(func() { app.Draw() })
-	logsTextView.SetChangedFunc(func() { app.Draw() })
-	plan.SetChangedFunc(func() { app.Draw() })
-
-	return &DashBoard{
+	l := &DashBoard{
 		app:     app,
 		screen:  screen,
 		updates: updates,
 		logs:    logs,
 		plan:    plan,
 	}
+
+	updatesTextView.SetChangedFunc(func() { app.Draw() })
+	keybindingsTextView.SetChangedFunc(func() { app.Draw() })
+	logsTextView.SetChangedFunc(func() { app.Draw() })
+
+	plan.SetChangedFunc(func() { app.Draw() })
+	plan.SetItemSelectedFunc(func() {
+		go l.logs.Strobe()
+		go l.plan.Strobe()
+	})
+
+	return l
 }
 
 func (l *DashBoard) Run() <-chan bool {
@@ -64,17 +70,5 @@ func (l *DashBoard) Run() <-chan bool {
 
 	l.app.SetRoot(l.screen, true).SetFocus(l.screen)
 	go l.updates.Strobe()
-	go l.strobeLogs()
-	go l.strobePlan()
 	return doneChan
-}
-
-func (l *DashBoard) strobeLogs() {
-	time.Sleep(10 * time.Second)
-	l.logs.Strobe()
-}
-
-func (l *DashBoard) strobePlan() {
-	time.Sleep(10 * time.Second)
-	l.plan.Strobe()
 }
