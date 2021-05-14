@@ -51,6 +51,9 @@ var buildText3 = fmt.Sprintf(`[%[1]s]
 var failedText = boldRed.Sprint(`
 BUILD FAILED`)
 
+var successText = boldGreen.Sprint(`
+BUILD SUCCEEDED`)
+
 type Logs struct {
 	tv *tview.TextView
 }
@@ -90,5 +93,5 @@ func (l *Logs) Strobe() {
 	l.tv.SetText(tview.TranslateANSI(detectText + analyzeText +  restoreText + buildText1 + buildText2 + buildText3))
 
 	time.Sleep(4 * time.Second)
-	l.tv.SetText(tview.TranslateANSI(detectText + analyzeText +  restoreText + buildText1 + buildText2 + buildText3 + failedText))
+	l.tv.SetText(tview.TranslateANSI(detectText + analyzeText +  restoreText + buildText1 + buildText2 + buildText3 + successText))
 }

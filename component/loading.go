@@ -1,6 +1,7 @@
 package component
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"time"
 )
@@ -31,12 +32,40 @@ func (l *Loading) Run() <-chan bool {
 	var (
 		doneChan = make(chan bool)
 		ticker   = time.NewTicker(200 * time.Millisecond)
-		timeout  = time.After(4 * time.Second)
 	)
 
 	l.app.SetRoot(l.screen, true)
-	go l.run(ticker, timeout, doneChan)
+	go func() {
+		l.pull(ticker, time.After(4 * time.Second), doneChan)
+		l.run(ticker, time.After(4 * time.Second), doneChan)
+	}()
 	return doneChan
+}
+
+func (l *Loading) pull(ticker *time.Ticker, timeout <-chan time.Time, doneChan chan<- bool) {
+	var (
+		i        = 0
+		texts    = []string{
+			"⏳️ Pulling",
+			"⏳️ Pulling.",
+			"⏳️ Pulling..",
+			"⏳️ Pulling...",
+		}
+	)
+
+	for {
+		select {
+		case <-ticker.C:
+			l.textView.SetText(texts[i])
+
+			i = i + 1
+			if i == len(texts) {
+				i = 0
+			}
+		case <-timeout:
+			return
+		}
+	}
 }
 
 func (l *Loading) run(ticker *time.Ticker, timeout <-chan time.Time, doneChan chan<- bool) {
@@ -70,7 +99,7 @@ func (l *Loading) run(ticker *time.Ticker, timeout <-chan time.Time, doneChan ch
 }
 
 func centered(p tview.Primitive) tview.Primitive {
-	return tview.NewGrid().
+	grid := tview.NewGrid().
 		SetColumns(0, 20, 0).
 		SetRows(0, 1, 0).
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 0, 0, 1, 1, 0, 0, true).
@@ -82,4 +111,12 @@ func centered(p tview.Primitive) tview.Primitive {
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 0, 1, 1, 0, 0, true).
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 1, 1, 1, 0, 0, true).
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 2, 1, 1, 0, 0, true)
+
+	logs := tview.NewTextView().
+		SetBackgroundColor(tcell.NewRGBColor(10, 35, 45))
+
+	return tview.NewFlex().
+		SetDirection(tview.FlexRow).
+			AddItem(logs, 0, 3, false).
+			AddItem(grid, 0, 1, false)
 }

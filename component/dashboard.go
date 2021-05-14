@@ -10,12 +10,13 @@ type DashBoard struct {
 	updates *Updates
 	logs    *Logs
 	plan    *Plan
+	image   *Image
 }
 
 func NewDashboard(app *tview.Application) *DashBoard {
 	var (
-		updates         = NewUpdates()
-		updatesTextView = updates.View()
+		updates = NewUpdates()
+		//updatesTextView = updates.View()
 
 		logs         = NewLogs()
 		logsTextView = logs.View()
@@ -23,24 +24,23 @@ func NewDashboard(app *tview.Application) *DashBoard {
 		plan     = NewBuildPlan()
 		planView = plan.View()
 
+		image     = NewImage()
+		imageView = image.View()
+
 		keybindingsTextView = NewKeyBindings().View()
 		builderView         = NewBuilder().View()
-		imageView           = NewImage().View()
 	)
 
 	screen := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
 		AddItem(tview.NewFlex().
 			SetDirection(tview.FlexRow).
-			AddItem(updatesTextView, 4, 0, false).
 			AddItem(imageView, 4, 0, false).
 			AddItem(builderView, 7, 0, false).
-			AddItem(planView, 0, 1, true).
-			AddItem(keybindingsTextView, 1, 0, false), 0, 1, true).
+			AddItem(planView, 0, 1, true), 0, 1, true).
 		AddItem(tview.NewFlex().
 			SetDirection(tview.FlexRow).
-			AddItem(logsTextView, 0, 1, false).
-			AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 1, 0, false), 0, 1, false)
+			AddItem(logsTextView, 0, 1, false), 0, 1, false)
 
 	l := &DashBoard{
 		app:     app,
@@ -48,18 +48,13 @@ func NewDashboard(app *tview.Application) *DashBoard {
 		updates: updates,
 		logs:    logs,
 		plan:    plan,
+		image:   image,
 	}
 
-	updatesTextView.SetChangedFunc(func() { app.Draw() })
+	//updatesTextView.SetChangedFunc(func() { app.Draw() })
 	keybindingsTextView.SetChangedFunc(func() { app.Draw() })
 	logsTextView.SetChangedFunc(func() { app.Draw() })
-
 	plan.SetChangedFunc(func() { app.Draw() })
-	plan.SetItemSelectedFunc(func() {
-		go l.logs.Strobe()
-		go l.plan.Strobe()
-	})
-
 	return l
 }
 
@@ -69,6 +64,11 @@ func (l *DashBoard) Run() <-chan bool {
 	)
 
 	l.app.SetRoot(l.screen, true).SetFocus(l.screen)
-	go l.updates.Strobe()
+
+	go func() {
+		l.logs.Strobe()
+		l.image.Update()
+		l.plan.Strobe()
+	}()
 	return doneChan
 }

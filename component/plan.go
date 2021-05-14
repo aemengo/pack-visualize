@@ -3,7 +3,6 @@ package component
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"time"
 )
 
 type Plan struct {
@@ -39,7 +38,7 @@ func NewBuildPlan() *Plan {
 
 		list.AddItem(
 			tview.TranslateANSI(title),
-			info.Description,
+			"", //info.Description,
 			' ',
 			func() {},
 		)
@@ -65,7 +64,7 @@ func (p *Plan) SetItemSelectedFunc(handler func()) {
 }
 
 func (p *Plan) Strobe() {
-	time.Sleep(5 * time.Second)
+	//time.Sleep(5 * time.Second)
 
 	for index, info := range buildpackInfo() {
 		title := info.Name + "@" + info.Version
@@ -83,13 +82,13 @@ func (p *Plan) Strobe() {
 		p.list.InsertItem(
 			index,
 			tview.TranslateANSI(title),
-			info.Description,
+			"", //info.Description,
 			roone,
 			func() {},
 		)
 		p.list.SetCurrentItem(prevIndex)
 
-		time.Sleep(750 * time.Millisecond)
+		//time.Sleep(750 * time.Millisecond)
 
 		if p.changed != nil {
 			p.changed()
@@ -109,7 +108,7 @@ func buildpackInfo() []Info {
 		{
 			Name:         "paketo-buildpacks/go-dist",
 			Version:      "0.3.1",
-			HasUpdate:    true,
+			HasUpdate:    false,
 			HasSucceeded: true,
 			Description:  "Provides Go Binary",
 		},
@@ -141,12 +140,12 @@ func buildpackInfo() []Info {
 			HasSucceeded: true,
 			Description:  "Configures label metadata",
 		},
-		{
-			Name:         "<custom>",
-			Version:      "_",
-			HasUpdate:    false,
-			HasSucceeded: false,
-			Description:  "Does a specific thing that I want for this application",
-		},
+		//{
+		//	Name:         "<custom>",
+		//	Version:      "_",
+		//	HasUpdate:    false,
+		//	HasSucceeded: false,
+		//	Description:  "Does a specific thing that I want for this application",
+		//},
 	}
 }
