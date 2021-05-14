@@ -1,30 +1,54 @@
 package component
 
 import (
+	"context"
+	"github.com/buildpacks/pack/config"
+	"github.com/buildpacks/pack/external/image"
+	"github.com/buildpacks/pack/logging"
+	dockerClient "github.com/docker/docker/client"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"time"
 )
 
 type Loading struct {
-	app      *tview.Application
-	textView *tview.TextView
-	screen   tview.Primitive
+	app          *tview.Application
+	textView     *tview.TextView
+	logsTextView *tview.TextView
+	screen       tview.Primitive
+	fetcher      *image.Fetcher
 }
 
 func NewLoading(app *tview.Application) *Loading {
 	var (
-		textView = tview.NewTextView()
-		screen   = centered(textView)
+		textView     = tview.NewTextView()
+		logsTextView = tview.NewTextView()
+		screen       = centered(textView, logsTextView)
 	)
 
 	textView.SetBackgroundColor(backgroundColor)
 	textView.SetChangedFunc(func() { app.Draw() })
 
+	logsTextView.SetBackgroundColor(tcell.NewRGBColor(10, 35, 45))
+	logsTextView.SetDynamicColors(true)
+	logsTextView.SetChangedFunc(func() { app.Draw() })
+
+	docker, err := dockerClient.NewClientWithOpts(
+		dockerClient.FromEnv,
+		dockerClient.WithVersion("1.38"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := logging.New(logsTextView)
+
 	return &Loading{
-		app:      app,
-		textView: textView,
-		screen:   screen,
+		app:          app,
+		textView:     textView,
+		logsTextView: logsTextView,
+		screen:       screen,
+		fetcher:      image.NewFetcher(logger, docker),
 	}
 }
 
@@ -36,22 +60,28 @@ func (l *Loading) Run() <-chan bool {
 
 	l.app.SetRoot(l.screen, true)
 	go func() {
-		l.pull(ticker, time.After(4 * time.Second), doneChan)
-		l.run(ticker, time.After(4 * time.Second), doneChan)
+		l.pull(ticker, time.After(4*time.Second), doneChan)
+		l.run(ticker, time.After(4*time.Second), doneChan)
 	}()
 	return doneChan
 }
 
 func (l *Loading) pull(ticker *time.Ticker, timeout <-chan time.Time, doneChan chan<- bool) {
 	var (
-		i        = 0
-		texts    = []string{
+		i     = 0
+		texts = []string{
 			"⏳️ Pulling",
 			"⏳️ Pulling.",
 			"⏳️ Pulling..",
 			"⏳️ Pulling...",
 		}
 	)
+
+	go func() {
+		ctx, _ := context.WithTimeout(context.Background(), 8*time.Second)
+		l.fetcher.Fetch(ctx, "paketobuildpacks/builder", true, config.PullAlways)
+		//l.fetcher.Fetch(ctx, "hello-world", true, config.PullAlways)
+	}()
 
 	for {
 		select {
@@ -98,7 +128,7 @@ func (l *Loading) run(ticker *time.Ticker, timeout <-chan time.Time, doneChan ch
 	}
 }
 
-func centered(p tview.Primitive) tview.Primitive {
+func centered(p tview.Primitive, p2 tview.Primitive) tview.Primitive {
 	grid := tview.NewGrid().
 		SetColumns(0, 20, 0).
 		SetRows(0, 1, 0).
@@ -112,11 +142,8 @@ func centered(p tview.Primitive) tview.Primitive {
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 1, 1, 1, 0, 0, true).
 		AddItem(tview.NewBox().SetBackgroundColor(backgroundColor), 2, 2, 1, 1, 0, 0, true)
 
-	logs := tview.NewTextView().
-		SetBackgroundColor(tcell.NewRGBColor(10, 35, 45))
-
 	return tview.NewFlex().
 		SetDirection(tview.FlexRow).
-			AddItem(logs, 0, 3, false).
-			AddItem(grid, 0, 1, false)
+		AddItem(p2, 0, 3, false).
+		AddItem(grid, 0, 1, false)
 }
